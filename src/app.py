@@ -180,6 +180,17 @@ extractor = IntelligenceExtractor()
 agent = AgentPersonality()
 sessions = SessionManager()
 
+@app.before_request
+def check_api_key():
+    """Check API key authentication"""
+    # Skip auth for health endpoint
+    if request.path == '/health':
+        return None
+    
+    api_key = request.headers.get('x-api-key')
+    if not api_key or api_key != 'your-secret-api-key':
+        return jsonify({"error": "Unauthorized", "message": "Invalid API key"}), 401
+
 @app.route('/api/message', methods=['POST'])
 def handle_message():
     """Main API endpoint"""
