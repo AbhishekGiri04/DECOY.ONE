@@ -38,7 +38,6 @@ ENV/
 .env
 .env.local
 .env.*.local
-config.py
 
 # Logs
 *.log
