@@ -165,9 +165,9 @@ graph TD
 DECOY.ONE/
 ├── 📂 src/                        # Source code
 │   ├── 📄 app.py                  # Basic text honeypot (rule-based)
-│   ├── 📄 ai_app.py               # AI-powered honeypot (Ollama) ⭐
+│   ├── 📄 ai_app.py               # AI-powered honeypot (Ollama) 
 │   ├── 📄 intelligent_app.py      # OpenAI GPT version (optional)
-│   └── 📄 voice_mic.py            # Voice interaction system 🎤
+│   └── 📄 voice_mic.py            # Voice interaction system 
 ├── 📂 tests/                      # Test files
 │   └── 📄 test_system.py          # System integration tests
 ├── 📄 config.py                   # Configuration settings
@@ -500,12 +500,12 @@ The system detects 15+ scam types:
 
 ```mermaid
 sequenceDiagram
-    participant User as 🎤 User (Scammer)
-    participant Mic as 🔊 Microphone
-    participant SR as 🔍 Speech Recognition
-    participant AI as 🧠 AI Agent
-    participant TTS as 🔊 Text-to-Speech
-    participant Speaker as 🔊 Speaker
+    participant User as  User (Scammer)
+    participant Mic as  Microphone
+    participant SR as  Speech Recognition
+    participant AI as  AI Agent
+    participant TTS as  Text-to-Speech
+    participant Speaker as  Speaker
     
     User->>Mic: Speaks: "Your account blocked"
     Mic->>SR: Audio data
@@ -769,6 +769,8 @@ python3 src/ai_app.py
 </div>
 
 ---
+
+<div align="center">
 
 ## 📄 License
 
