@@ -1,0 +1,7 @@
+Flask==2.3.3
+requests==2.31.0
+gunicorn==21.2.0
+gTTS==2.5.0
+SpeechRecognition==3.10.1
+pydub==0.25.1
+pyaudio==0.2.14

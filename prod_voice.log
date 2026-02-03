@@ -1,0 +1,14 @@
+INFO:__main__:🍯📞 Starting Production Voice Honeypot with Twilio
+ * Serving Flask app 'production_voice'
+ * Debug mode: off
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://172.20.10.3:8080
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:127.0.0.1 - - [03/Feb/2026 21:33:24] "GET /health HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Feb/2026 21:36:05] "POST /api/message HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Feb/2026 21:37:01] "POST /api/message HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Feb/2026 21:37:13] "POST /api/message HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [03/Feb/2026 21:37:34] "[33mPOST /api/voice/speak HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [03/Feb/2026 21:37:34] "[33mPOST /api/voice/chat HTTP/1.1[0m" 404 -
