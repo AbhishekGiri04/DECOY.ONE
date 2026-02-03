@@ -15,14 +15,16 @@ class ScamDetector:
     def __init__(self):
         self.scam_patterns = [
             r'(?:account|bank).*(?:block|suspend|freeze|close|deactivate|locked)',
+            r'(?:block|suspend|freeze|close).*(?:account|bank)',
             r'(?:verify|confirm|update).*(?:urgent|immediate|now|today)',
             r'(?:upi|account|card|bank).*(?:id|number|details)',
+            r'(?:share|send|give|provide).*(?:upi|account|otp|pin|cvv|details)',
             r'(?:otp|pin|password|cvv)',
             r'(?:click|visit|download).*(?:link|app)',
             r'(?:congratulations|winner|won|selected|prize|lottery)',
             r'(?:kyc|know.*your.*customer)',
             r'(?:rbi|reserve.*bank|government|police)',
-            r'(?:transfer|pay|send).*(?:money|rupees|amount)',
+            r'(?:transfer|pay|send).*(?:money|rupees|amount|verify)',
             r'(?:refund|cashback).*(?:pending|claim)',
             r'(?:urgent|immediate|asap|hurry|quickly)',
             r'(?:expire|deadline|last.*chance|final.*warning)',
@@ -284,5 +286,6 @@ def stats():
     })
 
 if __name__ == '__main__':
+    from config import Config
     logger.info("🍯 Starting Agentic Honeypot System")
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    app.run(host=Config.HOST, port=Config.PORT, debug=Config.DEBUG)
