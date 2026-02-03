@@ -164,27 +164,38 @@ graph TD
 ```
 DECOY.ONE/
 ├── 📂 src/                        # Source code
-│   ├── 📄 app.py                  # Basic text honeypot (rule-based)
-│   ├── 📄 ai_app.py               # AI-powered honeypot (Ollama) 
-│   ├── 📄 intelligent_app.py      # OpenAI GPT version (optional)
-│   └── 📄 voice_mic.py            # Voice interaction system 
+│   ├── 📄 production_app.py       # Production app (ML + MongoDB + Ollama) 
+│   ├── 📄 voice_mic.py            # Voice interaction system 
+│   ├── 📄 app.py                  # Basic text honeypot
+│   ├── 📄 ai_app.py               # AI honeypot (Ollama)
+│   └── 📄 intelligent_app.py      # OpenAI GPT version
 ├── 📂 tests/                      # Test files
-│   └── 📄 test_system.py          # System integration tests
-├── 📄 config.py                   # Configuration settings
-├── 📄 requirements.txt            # Python dependencies
+│   ├── 📄 test_production.py      # Production tests 
+│   ├── 📄 test_api.py             # API tests
+│   └── 📄 test_system.py          # System tests
+├── 📄 .env.example                # Environment variables template
 ├── 📄 .gitignore                  # Git ignore patterns
+├── 📄 requirements.txt            # Python dependencies
+├── 📄 render.yaml                 # Render deployment config
+├── 📄 Dockerfile                  # Docker configuration
+├── 📄 Procfile                    # Heroku deployment
+├── 📄 runtime.txt                 # Python version
+├── 📄 PRODUCTION_DEPLOY.md        # Deployment guide
 ├── 📄 README.md                   # Project documentation
 └── 📄 LICENSE                     # MIT License
 ```
 
 ### File Descriptions
 
-**src/app.py** - Basic text honeypot with hardcoded responses  
-**src/ai_app.py** - Intelligent honeypot using Ollama LLM (RECOMMENDED)  
-**src/intelligent_app.py** - OpenAI GPT version (requires API key)  
+**src/production_app.py** - Production app with ML, MongoDB, and Ollama (RECOMMENDED)  
 **src/voice_mic.py** - Voice interaction with microphone support  
-**tests/test_system.py** - Automated testing script  
-**config.py** - Configuration for ports, timeouts, and settings
+**src/app.py** - Basic text honeypot with hardcoded responses  
+**src/ai_app.py** - AI honeypot using Ollama LLM  
+**src/intelligent_app.py** - OpenAI GPT version (requires API key)  
+**tests/test_production.py** - Production system tests  
+**tests/test_api.py** - API endpoint tests  
+**tests/test_system.py** - System integration tests  
+**.env.example** - Environment variables template (copy to .env)
 
 ---
 
