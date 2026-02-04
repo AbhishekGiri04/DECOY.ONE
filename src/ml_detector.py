@@ -5,13 +5,14 @@ Uses TF-IDF, feature engineering, and ensemble methods
 
 import numpy as np
 import logging
+import pandas as pd
+import os
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier, GradientBoostingClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, train_test_split
 import pickle
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -71,266 +72,143 @@ class EnhancedMLScamDetector:
             logger.error(f"Failed to save model: {e}")
     
     def train_model(self):
-        """Train ML model with comprehensive dataset"""
+        """Train ML model with real datasets"""
         
-        # Comprehensive scam dataset (100+ samples)
-        scam_data = [
-            # Account blocking scams
-            "Your account will be blocked today verify immediately",
-            "Bank account suspended verify details now",
-            "Account will be closed if not verified",
-            "Your account has been frozen unfreeze now",
-            "Account blocked due to suspicious activity",
-            
-            # UPI scams
-            "Share your UPI ID to avoid suspension",
-            "Send UPI ID for verification process",
-            "Update your UPI details immediately",
-            "UPI account will be deactivated verify now",
-            "Confirm your UPI ID to continue service",
-            
-            # OTP scams
+        logger.info("Loading datasets...")
+        
+        X_all = []
+        y_all = []
+        
+        # Load Dataset 1: Spam.csv (SMS Spam Collection)
+        try:
+            df1 = pd.read_csv('datasets/Spam.csv', encoding='latin-1')
+            df1 = df1[['v1', 'v2']].dropna()
+            df1.columns = ['label', 'text']
+            X_all.extend(df1['text'].astype(str).tolist())
+            y_all.extend([1 if label == 'spam' else 0 for label in df1['label']])
+            logger.info(f"Loaded Spam.csv: {len(df1)} samples")
+        except Exception as e:
+            logger.warning(f"Could not load Spam.csv: {e}")
+        
+        # Load Dataset 2: Spam_Ham_India.csv (Indian SMS)
+        try:
+            df2 = pd.read_csv('datasets/Spam_Ham_India.csv')
+            if 'Label' in df2.columns and 'Msg' in df2.columns:
+                df2_clean = df2.dropna(subset=['Msg', 'Label'])
+                X_all.extend(df2_clean['Msg'].astype(str).tolist())
+                y_all.extend([1 if str(label).lower() == 'spam' else 0 for label in df2_clean['Label']])
+                logger.info(f"Loaded Spam_Ham_India.csv: {len(df2_clean)} samples")
+        except Exception as e:
+            logger.warning(f"Could not load Spam_Ham_India.csv: {e}")
+        
+        # Add Indian banking scam patterns (critical for our use case)
+        indian_scams = [
+            "Your account will be blocked verify immediately",
+            "Share UPI ID to avoid suspension",
             "Send OTP now urgent action required",
-            "Share the OTP you received immediately",
-            "Verify OTP to unblock account",
-            "Enter OTP code to confirm identity",
-            "OTP required for account verification",
-            
-            # Transfer scams
-            "Transfer money to verify your account",
-            "Send small amount for verification",
-            "Transfer Rs 1 to activate account",
-            "Pay verification fee to continue",
-            "Send money to confirm ownership",
-            
-            # Prize scams
-            "You won prize claim now limited time",
-            "Congratulations you won lottery claim immediately",
-            "You are selected winner claim prize",
-            "Won 5 lakh rupees claim now",
-            "Prize money waiting transfer fee required",
-            
-            # KYC scams
-            "Your KYC is pending update immediately",
-            "KYC verification required urgently",
-            "Update KYC details to avoid suspension",
-            "Complete KYC process now",
-            "KYC expired renew immediately",
-            
-            # Phishing scams
-            "Click this link to verify account urgently",
-            "Visit link to update details immediately",
-            "Download app to secure account",
-            "Open link for verification process",
-            "Click here to claim reward",
-            
-            # Authority impersonation
+            "Transfer money to verify account",
+            "KYC pending update immediately",
+            "Account suspended verify details now",
+            "Prize won claim immediately pay fee",
+            "Bank security alert confirm identity",
             "RBI notice compliance required urgently",
-            "Government tax refund claim now",
-            "Income tax department verify details",
-            "Police investigation verify identity",
-            "Court notice respond immediately",
-            
-            # Urgency tactics
-            "Act immediately or lose access",
-            "Only 2 hours left to verify",
-            "Last chance to save account",
-            "Urgent action needed within 1 hour",
-            "Immediate response required",
-            
-            # Credential theft
-            "Share your password for verification",
-            "Send CVV number to confirm card",
-            "Provide PIN for security check",
-            "Enter card details to verify",
-            "Share banking password urgently",
-            
-            # Refund scams
-            "Refund pending share bank account",
-            "Cashback available claim immediately",
-            "Money refund process share details",
-            "Pending refund verify account",
-            "Cashback credited share UPI",
-            
-            # Job scams
-            "Job offer pay registration fee",
-            "Work from home send advance payment",
-            "Selected for job transfer fee required",
-            "Employment confirmed pay processing fee",
-            "Job opportunity send security deposit",
-            
-            # Investment scams
-            "Double your money in 30 days",
-            "Guaranteed returns invest now",
-            "High profit investment opportunity",
-            "Make lakhs daily join now",
-            "Investment scheme limited slots",
-            
-            # Loan scams
-            "Instant loan approved pay processing fee",
-            "Pre-approved loan transfer charges",
-            "Loan sanctioned send documentation fee",
-            "Credit approved pay verification amount",
-            "Loan offer pay insurance premium",
-            
-            # Additional variations
-            "Your debit card will expire update now",
-            "Credit card blocked verify immediately",
-            "Net banking access suspended",
-            "Mobile banking will be disabled",
+            "Refund pending share bank account details",
+            "Cashback available claim now send UPI",
+            "Account frozen unfreeze by verification",
+            "UPI blocked share details immediately",
+            "Net banking suspended verify now",
+            "Debit card expired update immediately",
+            "Credit card blocked verify urgently",
+            "Mobile banking disabled verify account",
             "ATM card deactivated verify details",
-            "Security alert verify account now",
-            "Suspicious transaction detected confirm",
-            "Unauthorized access verify identity",
-            "Account hacked secure it now",
-            "Data breach update password immediately",
-            "Verify Aadhaar to continue service",
-            "PAN card verification pending",
-            "Voter ID update required urgently",
-            "Driving license verification needed",
-            "Passport details update immediately",
-            "Insurance claim approved pay fee",
-            "Medical refund pending share details",
+            "Aadhaar verification pending update now",
+            "PAN card verification required urgently",
+            "Income tax refund claim immediately",
+            "GST refund pending share account",
             "Electricity bill refund claim now",
             "Gas subsidy pending verify account",
-            "Ration card update required urgently"
+            "Ration card update required urgently",
+            "Voter ID verification needed immediately",
+            "Driving license expired update now",
+            "Passport verification pending urgently",
+            "Insurance claim approved pay processing fee",
+            "Medical refund pending share bank details",
+            "Job offer selected pay registration fee",
+            "Work from home opportunity send advance",
+            "Loan approved pay processing charges",
+            "Credit card pre-approved pay fee",
+            "Investment opportunity double money guaranteed",
+            "Lottery won claim prize pay tax",
+            "Congratulations selected winner pay fee",
+            "Prize money waiting transfer charges",
+            "Court notice respond immediately verify",
+            "Police investigation verify identity urgently",
+            "Legal action pending respond now",
+            "Arrest warrant issued verify immediately",
+            "Tax evasion notice pay penalty now",
+            "Customs duty pending pay immediately",
+            "Traffic challan pay fine urgently",
+            "Property tax pending pay now",
+            "Electricity disconnection pay bill urgently",
+            "Water supply cut pay dues now",
+            "Gas connection suspended pay immediately"
         ]
+        X_all.extend(indian_scams)
+        y_all.extend([1] * len(indian_scams))
         
-        # Normal conversation dataset (100+ samples)
-        normal_data = [
-            "Hello how are you today",
-            "What time is the meeting tomorrow",
-            "Can you help me with this",
-            "Thank you very much for help",
-            "Good morning have a nice day",
-            "See you tomorrow at office",
-            "Happy birthday to you friend",
-            "How was your day today",
-            "Let's meet for coffee sometime",
-            "I love this weather today",
-            "What are your plans for weekend",
-            "Did you watch the movie yesterday",
-            "How is your family doing",
-            "Thanks for the information",
-            "Have a great day ahead",
-            "Nice to meet you",
-            "Take care see you soon",
-            "All the best for exam",
-            "Congratulations on your success",
-            "Hope you are doing well",
-            "Please send me the document",
-            "Can we reschedule the meeting",
-            "I will call you later",
-            "Let me know when you are free",
-            "Thanks for your time",
-            "Looking forward to meeting you",
-            "Have a wonderful evening",
-            "Best wishes for your future",
-            "Keep up the good work",
-            "That sounds great",
-            "I agree with your point",
-            "Let me think about it",
-            "I will get back to you",
-            "Please share your feedback",
-            "Can you explain this again",
-            "I understand your concern",
-            "That makes sense to me",
-            "I appreciate your help",
-            "Let's discuss this tomorrow",
-            "I will check and inform you",
-            "Please confirm the details",
-            "Can you send me the file",
-            "I received your message",
-            "Thanks for the update",
-            "I will review and respond",
-            "Please let me know",
-            "I am available anytime",
-            "Looking forward to your reply",
-            "Have a safe journey",
-            "Enjoy your vacation",
-            "Welcome back to work",
-            "Congratulations on your promotion",
-            "Best of luck for interview",
-            "Hope you feel better soon",
-            "Get well soon my friend",
-            "Thinking of you today",
-            "Sending you positive vibes",
-            "You are doing amazing",
-            "Keep going strong",
-            "Proud of your achievements",
-            "You inspire me daily",
-            "Thanks for being there",
-            "I miss you friend",
-            "Can't wait to see you",
-            "Let's catch up soon",
-            "How is work going",
-            "Any plans for today",
-            "What are you up to",
-            "Just checking in on you",
-            "Hope all is well",
-            "Thinking about our conversation",
-            "That was a great discussion",
-            "I learned a lot today",
-            "Thanks for the advice",
-            "Your suggestion was helpful",
-            "I will try that approach",
-            "That's a good idea",
-            "I never thought of that",
-            "You have a valid point",
-            "I see what you mean",
-            "That clarifies things",
-            "Now I understand better",
-            "Thanks for explaining",
-            "That was very informative",
-            "I appreciate the details",
-            "This is really useful",
-            "Good to know this",
-            "I will remember that",
-            "Thanks for the reminder",
-            "I almost forgot about it",
-            "You saved me time",
-            "That was quick response",
-            "I appreciate your promptness",
-            "Thanks for being patient",
-            "Sorry for the delay",
-            "I apologize for confusion",
-            "Let me clarify that",
-            "I meant to say",
-            "To be more specific",
-            "In other words",
-            "What I mean is"
-        ]
+        logger.info(f"Total samples: {len(X_all)} ({sum(y_all)} scam, {len(y_all)-sum(y_all)} normal)")
         
-        # Combine datasets
-        X = scam_data + normal_data
-        y = [1] * len(scam_data) + [0] * len(normal_data)
+        # Clean data - remove short/invalid texts
+        X_clean = []
+        y_clean = []
+        for text, label in zip(X_all, y_all):
+            text_str = str(text).strip().lower()
+            if len(text_str) > 10:  # Minimum 10 characters
+                X_clean.append(text_str)
+                y_clean.append(label)
         
-        logger.info(f"Training with {len(X)} samples ({len(scam_data)} scam, {len(normal_data)} normal)")
+        logger.info(f"After cleaning: {len(X_clean)} samples")
         
-        # Vectorize
-        X_vec = self.vectorizer.fit_transform(X)
-        
-        # Create ensemble model
-        nb = MultinomialNB(alpha=0.1)
-        lr = LogisticRegression(max_iter=1000, C=1.0)
-        rf = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
-        
-        self.model = VotingClassifier(
-            estimators=[('nb', nb), ('lr', lr), ('rf', rf)],
-            voting='soft',
-            weights=[1, 2, 2]
+        # Split data for proper evaluation
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_clean, y_clean, test_size=0.2, random_state=42, stratify=y_clean
         )
         
-        # Train
-        self.model.fit(X_vec, y)
+        logger.info(f"Training: {len(X_train)}, Testing: {len(X_test)}")
         
-        # Calculate accuracy
-        scores = cross_val_score(self.model, X_vec, y, cv=5)
-        self.accuracy = scores.mean()
+        # Vectorize with enhanced features
+        X_train_vec = self.vectorizer.fit_transform(X_train)
+        X_test_vec = self.vectorizer.transform(X_test)
+        
+        # Create powerful ensemble with 4 models
+        nb = MultinomialNB(alpha=0.1)
+        lr = LogisticRegression(max_iter=1000, C=1.0, random_state=42)
+        rf = RandomForestClassifier(n_estimators=200, max_depth=15, random_state=42, n_jobs=-1)
+        gb = GradientBoostingClassifier(n_estimators=100, random_state=42)
+        
+        self.model = VotingClassifier(
+            estimators=[('nb', nb), ('lr', lr), ('rf', rf), ('gb', gb)],
+            voting='soft',
+            weights=[1, 2, 2, 1]  # Give more weight to LR and RF
+        )
+        
+        # Train model
+        logger.info("Training ensemble model...")
+        self.model.fit(X_train_vec, y_train)
+        
+        # Evaluate on test set
+        test_score = self.model.score(X_test_vec, y_test)
+        
+        # Cross-validation for robust accuracy
+        cv_scores = cross_val_score(self.model, X_train_vec, y_train, cv=5)
+        self.accuracy = cv_scores.mean()
         
         self.trained = True
         
-        logger.info(f"✅ Model trained | Accuracy: {self.accuracy*100:.1f}% | Samples: {len(X)}")
+        logger.info(f"✅ Training Complete!")
+        logger.info(f"   CV Accuracy: {self.accuracy*100:.2f}%")
+        logger.info(f"   Test Accuracy: {test_score*100:.2f}%")
+        logger.info(f"   Total Samples: {len(X_clean)}")
         
         # Save model
         self.save_model()

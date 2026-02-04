@@ -141,18 +141,19 @@ Examples:
         return self._fallback_response(message, context)
     
     def _try_ollama(self, message, context):
-        """Try to get response from Ollama"""
+        """Try to get response from Ollama with better handling"""
         try:
             # Build context
             prompt = self.system_prompt + "\n\nConversation:\n"
             
-            # Add history
+            # Add history (last 3 turns)
             for msg in context['history'][-3:]:
                 prompt += f"Caller: {msg['scammer']}\n"
                 prompt += f"You: {msg['agent']}\n"
             
             prompt += f"Caller: {message}\nYou:"
             
+            # Call Ollama with longer timeout
             response = requests.post(
                 self.ollama_url,
                 json={
@@ -160,24 +161,36 @@ Examples:
                     "prompt": prompt,
                     "stream": False,
                     "options": {
-                        "temperature": 0.8,
-                        "num_predict": 50
+                        "temperature": 0.9,
+                        "num_predict": 80,
+                        "top_p": 0.9
                     }
                 },
-                timeout=5
+                timeout=15  # Increased timeout
             )
             
             if response.status_code == 200:
                 reply = response.json()['response'].strip()
-                reply = reply.split('\n')[0]  # First line only
-                if len(reply) > 10:
-                    logger.info(f"🤖 Ollama: {reply[:50]}...")
+                # Clean response
+                reply = reply.split('\n')[0].strip()
+                reply = reply.replace('Caller:', '').replace('You:', '').strip()
+                
+                if len(reply) > 15 and len(reply) < 200:
+                    logger.info(f"🤖 Ollama: {reply[:60]}...")
                     return reply
+                else:
+                    logger.warning(f"Ollama response too short/long: {len(reply)} chars")
+                    return None
+            else:
+                logger.warning(f"Ollama returned status {response.status_code}")
+                return None
         
+        except requests.exceptions.Timeout:
+            logger.warning("Ollama timeout - using fallback")
+            return None
         except Exception as e:
-            logger.warning(f"Ollama unavailable, using fallback")
-        
-        return None
+            logger.warning(f"Ollama error: {str(e)[:50]}")
+            return None
     
     def _fallback_response(self, message, context):
         """Fallback rule-based response"""
@@ -258,8 +271,15 @@ def handle_message():
         session_id = data['sessionId']
         message = data['message']
         history = data.get('conversationHistory', [])
+        metadata = data.get('metadata', {})
+        
+        # Extract metadata
+        channel = metadata.get('channel', 'Unknown')
+        language = metadata.get('language', 'English')
+        locale = metadata.get('locale', 'IN')
         
         logger.info(f"Processing session {session_id}: {message['text'][:50]}...")
+        logger.info(f"Channel: {channel}, Language: {language}, Locale: {locale}")
         
         # Check cache first
         cache_key = f"session:{session_id}"
@@ -319,6 +339,11 @@ def handle_message():
                     'ml_confidence': confidence,
                     'messages': full_history,
                     'context': context,
+                    'metadata': {
+                        'channel': channel,
+                        'language': language,
+                        'locale': locale
+                    },
                     'updated_at': datetime.now()
                 }
                 sessions_collection.update_one(

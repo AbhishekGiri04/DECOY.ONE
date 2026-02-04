@@ -5,6 +5,15 @@ Centralized config with validation
 
 import os
 from typing import Optional
+from pathlib import Path
+
+# Load .env file
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).parent.parent / '.env'
+    load_dotenv(env_path)
+except ImportError:
+    pass
 
 class Config:
     """Production configuration"""
@@ -22,7 +31,7 @@ class Config:
     MONGO_TIMEOUT = int(os.getenv('MONGO_TIMEOUT', 5000))
     
     # Security
-    API_KEY = os.getenv('API_KEY', 'your-secret-api-key')
+    API_KEY = os.getenv('API_KEY', 'your-secret-api-key-change-this')
     RATE_LIMIT = int(os.getenv('RATE_LIMIT', 100))
     
     # GUVI
@@ -64,7 +73,7 @@ class Config:
         if not cls.MONGO_URI:
             errors.append("MONGO_URI not set")
         
-        if cls.API_KEY == 'your-secret-api-key':
+        if cls.API_KEY == 'your-secret-api-key-change-this':
             errors.append("⚠️  Using default API_KEY (change in production)")
         
         if errors:
