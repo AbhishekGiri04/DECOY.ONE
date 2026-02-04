@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/Agentic-Honeypot.png" alt="Agentic Honeypot" width="800"/>
+
 <h1>🍯 Agentic Honeypot - AI Scam Detection System</h1>
 
 <p style="color: #2563eb; margin: 15px 0; font-size: 1.1em;">🎯 An intelligent AI-powered honeypot system that detects scam messages, engages scammers with human-like conversations, and extracts valuable intelligence automatically. Features real-time voice interaction, intelligent response generation using Ollama LLM, and comprehensive scam pattern detection.</p>
