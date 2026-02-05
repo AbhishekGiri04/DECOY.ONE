@@ -61,9 +61,14 @@ python3 -c "
 from pymongo import MongoClient
 import os
 try:
-    client = MongoClient(os.getenv('MONGO_URI', 'mongodb+srv://SUser:XVI7Q07RWDPdDEgl@scamuser.mr9rdlw.mongodb.net/?appName=ScamUser'), serverSelectionTimeoutMS=5000)
-    client.admin.command('ping')
-    print('[OK] MongoDB connected')
+    mongo_uri = os.getenv('MONGO_URI')
+    if not mongo_uri or mongo_uri == 'your-mongodb-uri-here':
+        print('[WARN] MongoDB URI not configured in .env file')
+        print('[WARN] System will run without MongoDB persistence')
+    else:
+        client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        client.admin.command('ping')
+        print('[OK] MongoDB connected')
 except Exception as e:
     print(f'[WARN] MongoDB connection failed: {e}')
     print('[WARN] System will run without MongoDB persistence')

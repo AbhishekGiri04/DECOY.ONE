@@ -76,7 +76,7 @@ echo -e "\n${YELLOW}[8/8] Setting up environment...${NC}"
 if [ ! -f ".env" ]; then
     cat > .env << EOF
 # MongoDB Configuration
-MONGO_URI=mongodb+srv://SUser:XVI7Q07RWDPdDEgl@scamuser.mr9rdlw.mongodb.net/?appName=ScamUser
+MONGO_URI=your-mongodb-uri-here
 
 # API Configuration
 API_KEY=your-secret-api-key-change-this
@@ -88,7 +88,7 @@ GUVI_CALLBACK_URL=https://hackathon.guvi.in/api/updateHoneyPotFinalResult
 PORT=8080
 EOF
     echo -e "${GREEN}[OK] .env file created${NC}"
-    echo -e "${YELLOW}[WARN] Please update API_KEY in .env file${NC}"
+    echo -e "${YELLOW}[WARN] Please update MONGO_URI and API_KEY in .env file${NC}"
 else
     echo -e "${GREEN}[OK] .env file already exists${NC}"
 fi

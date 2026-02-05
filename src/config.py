@@ -26,7 +26,7 @@ class Config:
     # MongoDB
     MONGO_URI = os.getenv(
         'MONGO_URI',
-        'mongodb+srv://SUser:XVI7Q07RWDPdDEgl@scamuser.mr9rdlw.mongodb.net/?appName=ScamUser'
+        'mongodb://localhost:27017/honeypot_db'  # Local fallback
     )
     MONGO_TIMEOUT = int(os.getenv('MONGO_TIMEOUT', 5000))
     

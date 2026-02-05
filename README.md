@@ -319,7 +319,7 @@ Create `.env` file:
 
 ```bash
 # MongoDB Configuration (required)
-MONGO_URI=mongodb+srv://SUser:XVI7Q07RWDPdDEgl@scamuser.mr9rdlw.mongodb.net/?appName=ScamUser
+MONGO_URI=your-mongodb-uri-here
 
 # API Configuration
 API_KEY=your-secret-api-key-change-this
