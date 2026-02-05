@@ -142,7 +142,7 @@ Examples:
         if ollama_response:
             return ollama_response
         
-        # Fallback to rule-based
+        # Fallback to enhanced rule-based with variety
         return self._fallback_response(message, context)
     
     def _try_ollama(self, message, context):
@@ -198,43 +198,165 @@ Examples:
             return None
     
     def _fallback_response(self, message, context):
-        """Fallback rule-based response"""
+        """Enhanced fallback rule-based response with variety"""
         msg_lower = message.lower()
         turn = context['turn_count']
         trust = context['trust_level']
         
-        # Generate response based on message content
-        if any(w in msg_lower for w in ['block', 'suspend', 'freeze']):
-            return "Oh no! Why is my account being blocked? I haven't done anything wrong. What should I do?"
+        # Get last agent response to avoid repetition
+        last_response = ""
+        if context['history']:
+            last_response = context['history'][-1].get('agent', '')
         
-        elif any(w in msg_lower for w in ['upi', 'account', 'details']):
-            if trust > 0.7:
-                return "You need my account details? I'm nervous about sharing that. How do I know you're legitimate?"
+        # Multiple response variations for each pattern
+        responses = []
+        
+        # Account blocking/suspension patterns
+        if any(w in msg_lower for w in ['block', 'suspend', 'freeze', 'lock']):
+            responses = [
+                "Oh no! Why is my account being blocked? I haven't done anything wrong. What should I do?",
+                "Blocked? That's scary! Can you tell me exactly what happened? I'm really worried now.",
+                "My account will be blocked? But I just used it yesterday! Is this really from my bank?",
+                "I'm getting very nervous about this. Why would they block my account? Can I call my bank directly?",
+                "This sounds serious. Should I go to my bank branch instead? I don't want to make a mistake."
+            ]
+        
+        # Account details/UPI/credentials request
+        elif any(w in msg_lower for w in ['account', 'upi', 'details', 'number']):
+            if trust > 0.6:
+                responses = [
+                    "You need my account details? I'm nervous about sharing that. How do I know you're legitimate?",
+                    "My bank always tells me never to share account information. Why do you need it over the phone?",
+                    "I'm not comfortable giving my account number. Can you send me an official email instead?",
+                    "Wait, my grandson told me never to share these details. Are you sure this is safe?",
+                    "Account number? That seems like sensitive information. Can I verify this at my bank branch?"
+                ]
             else:
-                return "I'm getting very suspicious now. Why do you keep asking for my details? This doesn't feel right."
+                responses = [
+                    "I'm getting very suspicious now. Why do you keep asking for my details? This doesn't feel right.",
+                    "You've asked me this multiple times already. Real banks don't do this. I think this is a scam!",
+                    "No, I'm not giving you anything. My family warned me about calls like this. Please stop calling.",
+                    "This is definitely a scam. I'm going to report this number to the police. Stop harassing me!",
+                    "I know what you're trying to do. I'm hanging up and calling my bank directly. Goodbye!"
+                ]
         
-        elif any(w in msg_lower for w in ['otp', 'pin', 'cvv', 'password']):
-            return "My bank always tells me never to share OTP with anyone. Why do you need it? This sounds like a scam."
+        # OTP/PIN/CVV/Password request
+        elif any(w in msg_lower for w in ['otp', 'pin', 'cvv', 'password', 'code']):
+            if trust > 0.5:
+                responses = [
+                    "My bank always tells me never to share OTP with anyone. Why do you need it? This sounds like a scam.",
+                    "OTP? But the message says never to share it with anyone, even bank staff. I'm confused now.",
+                    "I just got an OTP message and it says 'Do not share'. Why are you asking for it then?",
+                    "My grandson specifically told me never to give OTP to anyone. How do I know you're really from the bank?",
+                    "The OTP message has a warning not to share it. This doesn't seem right. I should call my bank."
+                ]
+            else:
+                responses = [
+                    "Absolutely not! I know OTP should never be shared. You're definitely trying to scam me!",
+                    "No way! Everyone knows you never share OTP. I'm reporting this to cyber crime. Stop calling!",
+                    "This is a scam! Real banks never ask for OTP. I'm blocking this number right now!",
+                    "You must think I'm stupid. I'm not giving you my OTP. I'm calling the police about this.",
+                    "Stop it! I know this is fraud. My bank already warned me about calls like this. Leave me alone!"
+                ]
         
-        elif any(w in msg_lower for w in ['transfer', 'pay', 'send', 'money']):
-            return "You want me to transfer money? That doesn't sound right at all. Why would I need to pay to verify my own account?"
+        # Money transfer/payment request
+        elif any(w in msg_lower for w in ['transfer', 'pay', 'send', 'money', 'rupees']):
+            responses = [
+                "You want me to transfer money? That doesn't sound right at all. Why would I need to pay to verify my own account?",
+                "Pay money to unlock my account? That makes no sense! Banks don't ask for money like this.",
+                "Transfer rupees? This is definitely a scam. Real banks never ask customers to send money for verification.",
+                "Why would I pay you anything? If there's a problem, I'll go to my bank branch directly.",
+                "Send money? No way! This is exactly what my family warned me about. I'm not falling for this!"
+            ]
         
-        elif any(w in msg_lower for w in ['link', 'click', 'download']):
-            return "I'm not comfortable clicking unknown links. My grandson warned me about phishing. Can you explain what it's for?"
+        # Link/website/download request
+        elif any(w in msg_lower for w in ['link', 'click', 'download', 'website', 'app']):
+            responses = [
+                "I'm not comfortable clicking unknown links. My grandson warned me about phishing. Can you explain what it's for?",
+                "Click a link? That sounds dangerous. How do I know it's not a virus or something?",
+                "My family told me never to click links from unknown numbers. Can I just visit the bank instead?",
+                "Download something? No thank you! I've heard about phone hacking. I'll go to my bank branch.",
+                "I don't trust clicking links. Too many scams these days. I'll handle this in person at the bank."
+            ]
         
-        elif any(w in msg_lower for w in ['urgent', 'immediate', 'quickly']):
-            return "This sounds very urgent. I'm getting scared. What happens if I don't do this in time?"
+        # Urgency/immediate action
+        elif any(w in msg_lower for w in ['urgent', 'immediate', 'quickly', 'now', 'hurry']):
+            responses = [
+                "This sounds very urgent. I'm getting scared. What happens if I don't do this in time?",
+                "Why is this so urgent? Can't I just go to my bank tomorrow? I'm feeling very pressured.",
+                "You're making me panic! Is this really that serious? Maybe I should call my son first.",
+                "Immediately? But I need time to think. This is making me very anxious. Can I call you back?",
+                "Stop rushing me! When people pressure me like this, it usually means something's wrong. I need to verify this."
+            ]
         
-        elif any(w in msg_lower for w in ['won', 'prize', 'congratulations']):
-            return "Really? I won something? That's amazing! But how do I know this is real? What did I win?"
+        # Prize/lottery/reward
+        elif any(w in msg_lower for w in ['won', 'prize', 'congratulations', 'lottery', 'reward']):
+            responses = [
+                "Really? I won something? That's amazing! But how do I know this is real? What did I win exactly?",
+                "I won a prize? But I don't remember entering any contest. How did you get my number?",
+                "This sounds too good to be true. My family says these are usually scams. Can you prove it's real?",
+                "Congratulations? For what? I'm suspicious because I didn't participate in anything. Is this legitimate?",
+                "Won money? But I have to pay first? That doesn't make sense. Real prizes don't require payment!"
+            ]
         
+        # Verification/KYC/update
+        elif any(w in msg_lower for w in ['verify', 'kyc', 'update', 'confirm']):
+            responses = [
+                "Verify my account? Can't I just do this at my bank branch? I'm not comfortable doing this over the phone.",
+                "KYC update? I already did that last year. Why do I need to do it again? Something feels off.",
+                "Update my details? I'd rather visit the bank in person. How do I know this call is genuine?",
+                "Confirm my information? But you called me - shouldn't you already have my information if you're from the bank?",
+                "Verification? I'm confused. My bank has all my details. Why would they need me to verify over phone?"
+            ]
+        
+        # Phone number/contact request  
+        elif any(w in msg_lower for w in ['call', 'phone', 'number', 'contact', 'whatsapp']):
+            responses = [
+                "You want me to call a different number? Why can't I just call the number on my bank card?",
+                "That phone number doesn't look like my bank's official number. I'll use the one from their website instead.",
+                "WhatsApp? My bank never contacts me on WhatsApp. This seems very suspicious to me.",
+                "I'll call the customer care number printed on my ATM card, not some random number you're giving me.",
+                "Why would I call that number? I'll look up my bank's official helpline myself, thank you."
+            ]
+        
+        # Default responses based on turn count and trust
         else:
             if turn <= 3:
-                return "I don't understand. Can you explain this more clearly? I'm getting confused."
+                responses = [
+                    "I don't understand. Can you explain this more clearly? I'm getting confused.",
+                    "What exactly do you mean? I'm an old person, please speak slowly and clearly.",
+                    "I'm not following. Can you repeat that? My hearing isn't very good.",
+                    "This is confusing me. Can you explain what's happening with my account?",
+                    "I'm sorry, I don't quite understand what you're saying. Can you be more specific?"
+                ]
             elif turn <= 6:
-                return "I'm still not clear about this. Can you give me more specific details?"
+                responses = [
+                    "I'm still not clear about this. Can you give me more specific details?",
+                    "You're not explaining this well. I'm getting more confused. What exactly do you want?",
+                    "This doesn't make sense to me. Why would my bank call me like this?",
+                    "I'm having trouble understanding. Maybe I should just visit my bank branch instead?",
+                    "Can you slow down? I need to understand this properly before I do anything."
+                ]
             else:
-                return "I'm getting more confused and worried. Maybe I should visit my bank branch instead?"
+                responses = [
+                    "I'm getting more confused and worried. Maybe I should visit my bank branch instead?",
+                    "This conversation is making me very uncomfortable. I think I should hang up and call my bank directly.",
+                    "You've been asking me the same things repeatedly. This doesn't feel right. I'm going to end this call.",
+                    "I don't trust this anymore. I'm going to my bank in person to sort this out. Goodbye.",
+                    "This has gone on too long. I'm hanging up now and calling my bank's official number. Stop calling me!"
+                ]
+        
+        # Select response that's different from last one
+        if responses:
+            import random
+            # Filter out last response to avoid repetition
+            available = [r for r in responses if r != last_response]
+            if not available:
+                available = responses
+            return random.choice(available)
+        
+        # Ultimate fallback
+        return "I'm sorry, I don't understand what you're referring to."
 
 # Initialize agent and memory
 agent = ContextAwareAgent()
