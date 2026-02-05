@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: agentic-honeypot
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt && python -m spacy download en_core_web_sm
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT src.production_app:app --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: MONGO_URI
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: GUVI_CALLBACK_URL
+        value: https://hackathon.guvi.in/api/updateHoneyPotFinalResult
+      - key: PORT
+        value: 8080
+      - key: HOST
+        value: 0.0.0.0
+      - key: RATE_LIMIT
+        value: 100
+      - key: MAX_WORKERS
+        value: 2
