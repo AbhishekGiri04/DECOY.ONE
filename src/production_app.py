@@ -1,9 +1,14 @@
+import sys
+import os
+
+# Add src directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask, request, jsonify
 import re
 import requests
 from datetime import datetime
 import logging
-import os
 import time
 from pymongo import MongoClient
 
