@@ -4,7 +4,7 @@
 
 <h1>🍯 Agentic Honeypot - AI-Powered Scam Detection System</h1>
 
-<p style="color: #2563eb; margin: 15px 0; font-size: 1.1em;">🎯 An intelligent AI-powered honeypot system that detects scam messages using Machine Learning and AI (97% accuracy), engages scammers with context-aware conversations via Ollama LLM, and extracts valuable intelligence automatically. Features MongoDB storage, Redis caching, real-time monitoring, and comprehensive scam pattern detection.</p>
+<p style="color: #2563eb; margin: 15px 0; font-size: 1.1em;">🎯 An intelligent AI-powered honeypot system built for GUVI Hackathon that detects scam messages, engages scammers with human-like conversations, and extracts valuable intelligence automatically. Features ML detection (97% accuracy), Ollama LLM integration, MongoDB storage, and real-time intelligence extraction.</p>
 
 <p style="font-size: 1.2em; color: #1e40af; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 20px; border-radius: 12px; max-width: 800px; margin: 20px auto; line-height: 1.6; border-left: 4px solid #2563eb;">
 🤖 <b>AI-Powered Detection (97%)</b> | 🧠 <b>Ollama LLM Agent</b> | 📊 <b>42+ Intelligence Patterns</b> | 🔗 <b>GUVI Integration</b>
@@ -22,31 +22,15 @@
 
 ---
 
-# 🚨 Problem Statement
+# 🚨 Problem Statement (GUVI Hackathon)
 
-Scam calls and messages are increasing exponentially, targeting vulnerable individuals through sophisticated social engineering tactics. Traditional detection systems fail to:
-
-- **Engage scammers** to waste their time and resources
-- **Extract intelligence** about scam operations and networks
-- **Provide human-like responses** that keep scammers engaged
-- **Track and report** scam patterns to authorities
-- **Detect new scam patterns** with high accuracy
-
-### The Scam Crisis
-
-Current anti-scam systems are reactive and ineffective:
-
-<div align="center">
-
-| Challenge | Impact | Consequence |
-|-----------|--------|-------------|
-| **Passive Detection** | Only blocks known scams | New scams go undetected |
-| **No Engagement** | Scammers move to next target | Victims remain vulnerable |
-| **Manual Analysis** | Time-consuming investigation | Delayed response |
-| **No Intelligence** | Limited scam data | Cannot predict patterns |
-| **Robotic Responses** | Scammers detect honeypots | System becomes ineffective |
-
-</div>
+Build an **Agentic Honey-Pot** — an AI-powered system that:
+- ✅ Detects scam or fraudulent messages
+- ✅ Activates an autonomous AI Agent  
+- ✅ Maintains a believable human-like persona
+- ✅ Handles multi-turn conversations
+- ✅ Extracts scam-related intelligence
+- ✅ Returns structured results via API
 
 ---
 
@@ -178,11 +162,11 @@ graph TD
 ```
 DECOY.ONE/
 ├── 📂 assets/
-│   └── Agentic-Honeypot.png       # Project banner image
+│   └── Agentic-Honeypot.png       # Project banner
 │
 ├── 📂 datasets/
 │   ├── Spam.csv                   # 5,572 SMS spam samples
-│   ├── Spam_Ham_India.csv         # 2,267 Indian SMS samples
+│   ├── Spam_Ham_India.csv         # 2,267 Indian SMS samples  
 │   └── Phishing.csv               # 10,000 phishing samples
 │
 ├── 📂 models/
@@ -190,48 +174,53 @@ DECOY.ONE/
 │   └── vectorizer.pkl             # TF-IDF vectorizer
 │
 ├── 📂 src/
-│   ├── production_app.py          # Main Flask API (AI-powered, GUVI compliant)
-│   ├── ml_detector.py             # AI/ML scam detection (97% accuracy)
+│   ├── production_app.py          # Main Flask API (GUVI compliant)
+│   ├── ml_detector.py             # AI/ML scam detection
 │   ├── nlp_extractor.py           # Intelligence extraction (42 patterns)
-│   ├── monitoring.py              # Real-time monitoring & metrics
-│   ├── cache.py                   # Redis/Memory caching
-│   ├── rate_limiter.py            # API rate limiting (100 req/min)
-│   ├── logger.py                  # Production logging system
 │   ├── config.py                  # Configuration management
-│   └── health.py                  # Health check diagnostics
+│   ├── cache.py                   # Redis/Memory caching
+│   ├── rate_limiter.py            # API rate limiting
+│   ├── monitoring.py              # Real-time monitoring
+│   ├── logger.py                  # Production logging
+│   └── health.py                  # Health diagnostics
 │
 ├── 📂 tests/
-│   └── test_production.py         # Comprehensive test suite
+│   └── test_production.py         # Test suite
 │
 ├── 📂 logs/
 │   ├── honeypot.log               # Application logs
 │   └── errors.log                 # Error logs
 │
-├── .env                           # Environment variables
-├── .gitignore                     # Git ignore patterns
+├── .env.example                   # Environment variables template
+├── .gitignore                     # Git ignore rules
 ├── requirements.txt               # Python dependencies
 ├── setup.sh                       # Automated setup script
-├── start.sh                       # One-command server start
-├── README.md                      # Project documentation
+├── start.sh                       # Server start script
+├── Procfile                       # Render deployment config
+├── render.yaml                    # Render service config
+├── runtime.txt                    # Python version
+├── README.md                      # Documentation
 └── LICENSE                        # MIT License
 ```
 
 ### File Descriptions
 
-**src/production_app.py** - Main production API with AI/ML detection, Ollama LLM agent, MongoDB, Redis caching, and GUVI integration  
-**src/ml_detector.py** - AI-powered ML ensemble model (RandomForest + LogisticRegression + NaiveBayes + GradientBoosting)  
-**src/nlp_extractor.py** - Advanced NLP extraction with 42 regex patterns and spaCy NER  
-**src/monitoring.py** - Real-time system monitoring, metrics tracking, and alert system  
-**src/cache.py** - Redis-based caching with memory fallback for fast session access  
-**src/rate_limiter.py** - API protection with 100 requests/minute limit per IP  
-**src/logger.py** - Production logging with file rotation and error tracking  
-**src/config.py** - Centralized configuration management with validation  
-**src/health.py** - System health diagnostics (CPU, memory, disk, database)  
-**tests/test_production.py** - Automated test suite with 14+ test cases  
-**datasets/** - Real-world training data (17,839 total samples)  
-**models/** - Trained ML model files (97% accuracy)  
-**setup.sh** - One-command automated setup script  
-**start.sh** - One-command server start (handles Ollama + Flask)
+**src/production_app.py** - Main Flask API with AI detection, Ollama LLM, MongoDB, Redis, and GUVI integration  
+**src/ml_detector.py** - Ensemble ML model (RandomForest + LogisticRegression + NaiveBayes + GradientBoosting)  
+**src/nlp_extractor.py** - Intelligence extraction with 42+ regex patterns and spaCy NER  
+**src/config.py** - Configuration with environment variable management  
+**src/cache.py** - Redis caching with in-memory fallback  
+**src/rate_limiter.py** - API protection (100 requests/minute)  
+**src/monitoring.py** - Real-time performance tracking  
+**src/logger.py** - Structured logging with rotation  
+**src/health.py** - System health diagnostics  
+**tests/test_production.py** - Automated test suite  
+**datasets/** - Training data (7,889+ samples)  
+**models/** - Pre-trained ML models  
+**setup.sh** - Automated setup script  
+**start.sh** - Server start script  
+**Procfile** - Render deployment config  
+**.env.example** - Environment template
 
 ---
 
@@ -315,31 +304,24 @@ python -m spacy download en_core_web_sm
 
 #### Step 3: Configure Environment
 
-Create `.env` file:
+**Copy environment template:**
+```bash
+cp .env.example .env
+```
 
+**Edit `.env` and add your credentials:**
 ```bash
 # MongoDB Configuration (required)
-MONGO_URI=your-mongodb-uri-here
+MONGO_URI=your-mongodb-connection-string
 
-# API Configuration
-API_KEY=your-secret-api-key-change-this
+# API Configuration  
+API_KEY=your-secure-api-key
 
 # GUVI Integration
 GUVI_CALLBACK_URL=https://hackathon.guvi.in/api/updateHoneyPotFinalResult
-
-# Server Configuration
-HOST=0.0.0.0
-PORT=8080
-DEBUG=False
-
-# Redis (optional)
-REDIS_HOST=localhost
-REDIS_PORT=6379
-
-# Performance
-RATE_LIMIT=100
-MAX_WORKERS=4
 ```
+
+⚠️ **Security Note:** Never commit `.env` file to Git!
 
 ---
 
