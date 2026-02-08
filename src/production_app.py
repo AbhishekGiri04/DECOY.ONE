@@ -583,6 +583,22 @@ def send_final_result(session_id, total_messages, intelligence, context):
     except Exception as e:
         logger.error(f"❌ Failed to send result: {str(e)}")
 
+@app.route('/', methods=['GET'])
+def home():
+    """Root endpoint"""
+    return jsonify({
+        "service": "Agentic Honeypot API",
+        "status": "running",
+        "version": "3.0",
+        "endpoints": {
+            "health": "/health",
+            "api": "/api/message",
+            "stats": "/stats",
+            "intelligence": "/intelligence"
+        },
+        "documentation": "https://github.com/AbhishekGiri04/DECOY.ONE"
+    })
+
 @app.route('/health', methods=['GET'])
 def health():
     """Comprehensive health check"""
